@@ -1,29 +1,56 @@
+
+Based on the current implementation of JPool, here is the updated README:
+
+```markdown
 # JPool
 
-JPool is a high-performance, feature-rich, and easy-to-use worker pool program written in Java.
+JPool is a simple, lightweight, and easy-to-use worker pool implementation in Java.
 
 ## Features
 
-- **Task Queue**: JPool has a task queue for storing tasks to be processed. This queue is thread-safe, allowing multiple workers to fetch tasks concurrently.
+- **Task Queue**: JPool uses a `BlockingQueue` to store tasks to be processed. This queue is thread-safe, allowing multiple workers to fetch tasks concurrently.
 
-- **Thread Pool**: JPool has a thread pool, each thread in the pool can fetch tasks from the task queue and execute them. The size of the thread pool is configurable, allowing for optimization based on the system's hardware resources and the nature of the tasks.
+- **Worker Pool**: JPool maintains a pool of worker threads. Each worker can fetch tasks from the task queue and execute them. The size of the worker pool is configurable at the time of JPool creation.
 
-- **Load Balancing**: JPool can automatically adjust the distribution of tasks based on the load of each worker. For example, if a worker is processing a time-consuming task, new tasks should be assigned to other workers.
+- **Task Submission**: Tasks can be submitted to JPool using the `submit` method. If JPool has been shut down, an `IllegalStateException` will be thrown.
 
-- **Error Handling**: JPool can handle errors that may occur when workers execute tasks. For example, if a task fails, JPool can choose to retry the task or remove it from the task queue.
+- **Graceful Shutdown**: JPool provides a `shutdown` method for gracefully shutting down the worker pool. This method will wait for all workers to finish their current tasks before returning.
 
-- **Graceful Shutdown**: JPool provides a method for gracefully shutting down all workers. This means that when JPool is shut down, all tasks being executed should be completed, and new tasks should not be accepted.
+- **Task Monitoring**: JPool provides several methods for monitoring the status of tasks:
+  - `getCompletedTasks`: Returns the total number of tasks completed by all workers.
+  - `getWaitingTasks`: Returns the number of tasks waiting in the queue.
+  - `getRunningTasks`: Returns the number of tasks currently being run by workers.
 
-- **Monitoring and Logging**: JPool provides a method for monitoring the status and performance of each worker. In addition, JPool logs detailed information for debugging and performance optimization.
+## Usage
 
-- **Task Priority**: JPool supports task priority, allowing important tasks to be executed first.
+To use JPool, first create a new `JPool` instance with the desired number of workers. Then, submit tasks to the pool using the `submit` method. When all tasks are finished, call the `shutdown` method to gracefully shut down the worker pool.
 
-- **Task Timeout**: JPool supports task timeout settings. If a task is not completed within a specified time, there should be a corresponding handling mechanism.
+Here is a simple example:
 
-- **Flexible Task Scheduling**: JPool supports the scheduling of timed tasks and periodic tasks.
+```java
+// Create a new JPool with 4 workers
+JPool pool = new JPool(4);
 
-- **Resource Limiting**: JPool can limit the resources used by each worker, such as CPU, memory, etc.
+// Submit tasks to the pool
+for (int i = 0; i < 10; i++) {
+    pool.submit(() -> {
+        // This is the task to be executed
+        System.out.println("Task executed by " + Thread.currentThread().getName());
+    });
+}
+
+// Gracefully shut down the pool
+pool.shutdown();
+```
+In this example, we create a new JPool with 4 workers. We then submit 10 tasks to the pool. Each task simply prints a message to the console. Finally, we call the shutdown method to wait for all tasks to finish and shut down the pool.
+
+## Performance
+
+JPool is designed to be lightweight and efficient. However, the performance may vary depending on the nature of the tasks and the hardware resources available. It is recommended to adjust the size of the worker pool and the type of the task queue based on the specific use case.
 
 ## License
 
 JPool is open-sourced software licensed under the [MIT license](LICENSE).
+```
+
+This README provides a clear and concise description of JPool's features and usage. It also includes a note on performance and a link to the license.
