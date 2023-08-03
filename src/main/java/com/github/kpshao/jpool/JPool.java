@@ -8,6 +8,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class JPool {
     private final BlockingQueue<Runnable> taskQueue = new LinkedBlockingQueue<>();
     private final List<Worker> workers = new ArrayList<>();
+    private final List<Thread> threads = new ArrayList<>();
     private volatile boolean isShutdown = false;
 
     public JPool(int numWorkers) {
@@ -15,6 +16,7 @@ public class JPool {
             Worker worker = new Worker(taskQueue);
             workers.add(worker);
             Thread thread = new Thread(worker);
+            threads.add(thread);
             thread.start();
         }
     }
@@ -34,10 +36,8 @@ public class JPool {
         for (Worker worker : workers) {
             worker.shutdown();
         }
-        for (Worker worker : workers) {
-            while (!worker.isFinished()) {
-                Thread.sleep(100);
-            }
+        for (Thread thread : threads) {
+            thread.join();
         }
     }
 
